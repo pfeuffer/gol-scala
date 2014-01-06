@@ -5,17 +5,8 @@ import de.pfeufferweb.gol.benchmark.GolBuilder
 
 class GOL(cells: Set[Cell]) extends Gol {
   def next: GOL = {
-    val cellsStayingAlive =
-      for {
-        cell <- cells
-        if (staysAlive(cell))
-      } yield cell
-    val cellsReborn =
-      for {
-        cell <- cells
-        neighbour <- neighbours(cell)
-        if (!cells.contains(neighbour) && aliveNeighbourCount(neighbour) == 3)
-      } yield neighbour
+    val cellsStayingAlive = cells.filter(staysAlive(_))
+    val cellsReborn = cells.flatMap(neighbours).filter(aliveNeighbourCount(_) == 3)
     new GOL(cellsStayingAlive ++ cellsReborn)
   }
   def isAlive(x: Int, y: Int) = {
@@ -29,10 +20,7 @@ class GOL(cells: Set[Cell]) extends Gol {
     aliveNeighbours(cell).size
   }
   private def aliveNeighbours(cell: Cell) = {
-    for {
-      neighbour <- neighbours(cell)
-      if (cells.contains(neighbour))
-    } yield cell
+    neighbours(cell).filter(cells.contains(_))
   }
   private def neighbours(cell: Cell) = {
     for {
